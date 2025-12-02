@@ -19,6 +19,11 @@ class InfolistsServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if ($this->app->runningInConsole()) {
+            // Register commands
+            $this->commands([
+                Commands\MakeInfolistCommand::class,
+            ]);
+        }
     }
 }

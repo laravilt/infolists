@@ -1,0 +1,50 @@
+<?php
+
+namespace {{ namespace }};
+
+use Laravilt\Infolists\Infolist;
+use Laravilt\Infolists\Components\TextEntry;
+use Laravilt\Infolists\Components\ImageEntry;
+use Laravilt\Infolists\Components\BadgeEntry;
+
+/**
+ * {{ class }} Infolist
+ *
+ * Custom infolist for displaying read-only information.
+ */
+class {{ class }}
+{
+    /**
+     * Create the infolist configuration.
+     */
+    public static function make(): Infolist
+    {
+        return Infolist::make()
+            ->schema([
+                ImageEntry::make('image')
+                    ->label('Image')
+                    ->circular()
+                    ->size(80),
+
+                TextEntry::make('title')
+                    ->label('Title')
+                    ->copyable(),
+
+                TextEntry::make('description')
+                    ->label('Description')
+                    ->limit(200),
+
+                BadgeEntry::make('status')
+                    ->label('Status')
+                    ->color(fn ($value) => match($value) {
+                        'active' => 'success',
+                        'inactive' => 'danger',
+                        default => 'secondary',
+                    }),
+
+                TextEntry::make('created_at')
+                    ->label('Created')
+                    ->dateTime('M j, Y g:i A'),
+            ]);
+    }
+}

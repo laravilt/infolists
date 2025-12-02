@@ -48,11 +48,17 @@ const getEntryComponent = (componentType: string) => {
 
 // Separate layout components from entries
 const layoutComponents = computed(() => {
-  return props.schema.filter(item => ['Section', 'Grid', 'Tabs'].includes(item.component))
+  return props.schema.filter(item => {
+    const componentType = item.component || ''
+    return ['Section', 'Grid', 'Tabs', 'section', 'grid', 'tabs'].includes(componentType)
+  })
 })
 
 const entries = computed(() => {
-  return props.schema.filter(item => !['Section', 'Grid', 'Tabs'].includes(item.component))
+  return props.schema.filter(item => {
+    const componentType = item.component || ''
+    return !['Section', 'Grid', 'Tabs', 'section', 'grid', 'tabs'].includes(componentType)
+  })
 })
 
 const getGridClass = (columns?: number) => {
@@ -114,8 +120,8 @@ const getColumnSpanClass = (columnSpan?: number | string | Record<string, number
     <template v-for="layout in layoutComponents" :key="layout.label || layout.name">
       <!-- Section Component -->
       <Card v-if="layout.component === 'Section'">
-        <CardHeader v-if="layout.label">
-          <CardTitle>{{ layout.label }}</CardTitle>
+        <CardHeader v-if="layout.label || layout.heading">
+          <CardTitle>{{ layout.label || layout.heading }}</CardTitle>
           <CardDescription v-if="layout.description">
             {{ layout.description }}
           </CardDescription>
@@ -161,14 +167,49 @@ const getColumnSpanClass = (columnSpan?: number | string | Record<string, number
           :value="tab.label || `tab-${index}`"
           class="mt-6"
         >
-          <div class="grid gap-6">
-            <component
-              v-for="entry in tab.schema"
-              :key="entry.name"
-              :is="getEntryComponent(entry.component)"
-              :class="getColumnSpanClass(entry.columnSpan)"
-              v-bind="{ ...entry, state: entry.value ?? entry.state }"
-            />
+          <div class="space-y-6">
+            <!-- Recursively render layout components within tabs -->
+            <template v-for="item in tab.schema" :key="item.name">
+              <!-- Section within Tab -->
+              <Card v-if="item.component === 'Section'">
+                <CardHeader v-if="item.label || item.heading">
+                  <CardTitle>{{ item.label || item.heading }}</CardTitle>
+                  <CardDescription v-if="item.description">
+                    {{ item.description }}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div class="grid gap-6" :class="getGridClass(item.columns)">
+                    <component
+                      v-for="entry in item.schema"
+                      :key="entry.name"
+                      :is="getEntryComponent(entry.component)"
+                      :class="getColumnSpanClass(entry.columnSpan)"
+                      v-bind="{ ...entry, state: entry.value ?? entry.state }"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <!-- Grid within Tab -->
+              <div v-else-if="item.component === 'Grid'" class="grid gap-6" :class="getGridClass(item.columns)">
+                <component
+                  v-for="entry in item.schema"
+                  :key="entry.name"
+                  :is="getEntryComponent(entry.component)"
+                  :class="getColumnSpanClass(entry.columnSpan)"
+                  v-bind="{ ...entry, state: entry.value ?? entry.state }"
+                />
+              </div>
+
+              <!-- Regular entries within Tab -->
+              <component
+                v-else
+                :is="getEntryComponent(item.component)"
+                :class="getColumnSpanClass(item.columnSpan)"
+                v-bind="{ ...item, state: item.value ?? item.state }"
+              />
+            </template>
           </div>
         </TabsContent>
       </Tabs>

@@ -1,13 +1,19 @@
 {
     "name": "laravilt/infolists",
-    "description": "plugin for Laravilt",
+    "description": "Complete information display system with entries, sections, and flexible layouts. Display data in organized, readable formats with text, images, badges, icons, and lists with date/time and money formatting.",
     "version": "1.0.0",
     "type": "library",
     "license": "MIT",
     "keywords": [
         "laravel",
         "laravilt",
-        "plugin"
+        "infolists",
+        "information",
+        "display",
+        "entries",
+        "formatting",
+        "inertia",
+        "vue"
     ],
     "authors": [
         {
@@ -18,7 +24,8 @@
     "require": {
         "php": "^8.3|^8.4",
         "spatie/laravel-package-tools": "^1.14",
-        "illuminate/contracts": "^11.0|^12.0"
+        "illuminate/contracts": "^11.0|^12.0",
+        "laravilt/schemas": "^1.0"
     },
     "require-dev": {
         "larastan/larastan": "^2.9||^3.0",
@@ -68,6 +75,5 @@
             ]
         }
     },
-    "minimum-stability": "dev",
     "prefer-stable": true
 }
