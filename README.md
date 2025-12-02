@@ -1,4 +1,4 @@
-![Infolists](./arts/screenshot.jpg)
+![infolists](https://raw.githubusercontent.com/laravilt/infolists/master/arts/screenshot.jpg)
 
 # Laravilt Infolists
 
