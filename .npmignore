@@ -1,0 +1,33 @@
+# Development files
+node_modules/
+.git/
+.github/
+tests/
+vendor/
+
+# Config files
+.eslintrc*
+.prettierrc*
+phpunit.xml
+phpstan.neon
+pint.json
+testbench.yaml
+vite.config.ts
+tsconfig.json
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Source files (we only ship dist/)
+src/
+config/
+routes/
+lang/
+stubs/
+arts/
+
+# Laravel specific
+composer.json
+composer.lock

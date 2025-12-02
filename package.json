@@ -1,14 +1,57 @@
 {
-    "name": "{{ package }}",
+    "name": "@laravilt/infolists",
     "version": "1.0.0",
-    "private": true,
+    "description": "Complete infolist system with entries, actions, and schema-based layouts. Display structured information with custom entries, sections, and interactive components.",
+    "author": "Fady Mondy <info@3x1.io>",
+    "license": "MIT",
     "type": "module",
+    "main": "./dist/infolists.umd.js",
+    "module": "./dist/infolists.es.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/infolists.es.js",
+            "require": "./dist/infolists.umd.js"
+        },
+        "./style.css": "./dist/style.css"
+    },
+    "files": [
+        "dist",
+        "resources"
+    ],
+    "keywords": [
+        "laravilt",
+        "infolists",
+        "infolist",
+        "vue",
+        "vue3",
+        "entries",
+        "display",
+        "information",
+        "inertia",
+        "laravel"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/laravilt/infolists"
+    },
+    "bugs": {
+        "url": "https://github.com/laravilt/infolists/issues"
+    },
+    "homepage": "https://laravilt.dev/infolists",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
+        "build:types": "vue-tsc --declaration --emitDeclarationOnly --outDir dist resources/js/app.js || true",
+        "build:npm": "npm run build",
+        "prepublishOnly": "npm run build:npm",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix"
+    },
+    "peerDependencies": {
+        "vue": "^3.3.0"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
@@ -25,19 +68,10 @@
         "typescript": "^5.2.2",
         "typescript-eslint": "^8.23.0",
         "vite": "^7.0.4",
+        "vue": "^3.5.13",
         "vue-tsc": "^2.2.4"
     },
     "dependencies": {
-        "laravel-vite-plugin": "^2.0.0",
-        "tailwindcss": "^4.1.1",
-        "vue": "^3.5.13"
-    },
-    "optionalDependencies": {
-        "@rollup/rollup-linux-x64-gnu": "4.9.5",
-        "@rollup/rollup-win32-x64-msvc": "4.9.5",
-        "@tailwindcss/oxide-linux-x64-gnu": "^4.0.1",
-        "@tailwindcss/oxide-win32-x64-msvc": "^4.0.1",
-        "lightningcss-linux-x64-gnu": "^1.29.1",
-        "lightningcss-win32-x64-msvc": "^1.29.1"
+        "tailwindcss": "^4.1.1"
     }
 }
