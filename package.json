@@ -79,7 +79,6 @@
         "vue-tsc": "^2.2.4"
     },
     "dependencies": {
-        "@laravilt/infolists": "file:laravilt-infolists-1.0.0.tgz",
         "tailwindcss": "^4.1.1"
     }
 }
