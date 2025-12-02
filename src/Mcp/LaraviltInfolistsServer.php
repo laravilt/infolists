@@ -9,6 +9,7 @@ use Laravilt\Infolists\Mcp\Tools\SearchDocsTool;
 class LaraviltInfolistsServer extends Server
 {
     protected string $name = 'Laravilt Infolists';
+
     protected string $version = '1.0.0';
 
     protected string $instructions = <<<'MARKDOWN'
