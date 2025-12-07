@@ -26,6 +26,17 @@ abstract class Entry extends Component
 
     protected ?string $tooltip = null;
 
+    /**
+     * Set up the entry with default placeholder.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Set default placeholder for entries
+        $this->placeholder = $this->placeholder ?? '-';
+    }
+
     public function copyable(bool $condition = true): static
     {
         $this->copyable = $condition;
@@ -70,7 +81,8 @@ abstract class Entry extends Component
 
     public function state(mixed $state): static
     {
-        $this->state = $state;
+        // If state is null, use the placeholder value
+        $this->state = $state ?? $this->getPlaceholder();
 
         return $this;
     }
@@ -103,7 +115,11 @@ abstract class Entry extends Component
             $value = $record->{$this->name} ?? null;
         }
 
-        $this->state = $this->formatState($value);
+        // Format the state
+        $formattedValue = $this->formatState($value);
+
+        // If value is null, use placeholder
+        $this->state = $formattedValue ?? $this->getPlaceholder();
 
         return $this;
     }
@@ -118,6 +134,7 @@ abstract class Entry extends Component
             'color' => $this->color,
             'icon' => $this->icon,
             'tooltip' => $this->tooltip,
+            'placeholder' => $this->placeholder,
         ]);
     }
 

@@ -25,7 +25,7 @@ interface TextEntryProps {
 }
 
 const props = withDefaults(defineProps<TextEntryProps>(), {
-  placeholder: '—',
+  placeholder: '-',
   copyable: false,
   limit: null,
   wrap: false,

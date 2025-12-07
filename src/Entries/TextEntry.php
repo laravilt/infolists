@@ -20,6 +20,20 @@ class TextEntry extends Entry
 
     protected bool $badge = false;
 
+    protected ?string $weight = null;
+
+    protected ?string $textSize = null;
+
+    protected ?string $separator = null;
+
+    protected ?string $url = null;
+
+    protected bool $urlOpenInNewTab = false;
+
+    protected bool $copyable = false;
+
+    protected ?string $copyMessage = null;
+
     public function badge(bool $condition = true): static
     {
         $this->badge = $condition;
@@ -65,6 +79,20 @@ class TextEntry extends Entry
     public function suffix(string $suffix): static
     {
         $this->suffix = $suffix;
+
+        return $this;
+    }
+
+    public function weight(?string $weight): static
+    {
+        $this->weight = $weight;
+
+        return $this;
+    }
+
+    public function size(?string $size): static
+    {
+        $this->textSize = $size;
 
         return $this;
     }
@@ -119,6 +147,57 @@ class TextEntry extends Entry
         return $this;
     }
 
+    /**
+     * Set separator for array values (FilamentPHP v4 compatibility).
+     */
+    public function separator(?string $separator = ', '): static
+    {
+        $this->separator = $separator;
+
+        return $this;
+    }
+
+    /**
+     * Set URL for this entry (FilamentPHP v4 compatibility).
+     */
+    public function url(?string $url, bool $openInNewTab = false): static
+    {
+        $this->url = $url;
+        $this->urlOpenInNewTab = $openInNewTab;
+
+        return $this;
+    }
+
+    /**
+     * Open URL in new tab (FilamentPHP v4 compatibility).
+     */
+    public function openUrlInNewTab(bool $condition = true): static
+    {
+        $this->urlOpenInNewTab = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Make the entry copyable (FilamentPHP v4 compatibility).
+     */
+    public function copyable(bool $condition = true): static
+    {
+        $this->copyable = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Set the copy success message (FilamentPHP v4 compatibility).
+     */
+    public function copyMessage(?string $message): static
+    {
+        $this->copyMessage = $message;
+
+        return $this;
+    }
+
     public function toLaraviltProps(): array
     {
         return array_merge(parent::toLaraviltProps(), [
@@ -129,6 +208,13 @@ class TextEntry extends Entry
             'prefix' => $this->prefix,
             'suffix' => $this->suffix,
             'badge' => $this->badge,
+            'weight' => $this->weight,
+            'size' => $this->textSize,
+            'separator' => $this->separator,
+            'url' => $this->url,
+            'openUrlInNewTab' => $this->urlOpenInNewTab,
+            'copyable' => $this->copyable,
+            'copyMessage' => $this->copyMessage,
         ]);
     }
 }

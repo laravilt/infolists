@@ -48,18 +48,25 @@ const getEntryComponent = (componentType: string) => {
 
 // Separate layout components from entries
 const layoutComponents = computed(() => {
+  if (!props.schema || !Array.isArray(props.schema)) return []
   return props.schema.filter(item => {
-    const componentType = item.component || ''
-    return ['Section', 'Grid', 'Tabs', 'section', 'grid', 'tabs'].includes(componentType)
+    const componentType = (item.component || '').toLowerCase()
+    return ['section', 'grid', 'tabs'].includes(componentType)
   })
 })
 
 const entries = computed(() => {
+  if (!props.schema || !Array.isArray(props.schema)) return []
   return props.schema.filter(item => {
-    const componentType = item.component || ''
-    return !['Section', 'Grid', 'Tabs', 'section', 'grid', 'tabs'].includes(componentType)
+    const componentType = (item.component || '').toLowerCase()
+    return !['section', 'grid', 'tabs'].includes(componentType)
   })
 })
+
+// Helper to check component type (case insensitive)
+const isComponent = (item: InfoListEntry, type: string) => {
+  return (item.component || '').toLowerCase() === type.toLowerCase()
+}
 
 const getGridClass = (columns?: number) => {
   if (!columns || columns === 1) return 'md:grid-cols-1'
@@ -119,7 +126,7 @@ const getColumnSpanClass = (columnSpan?: number | string | Record<string, number
     <!-- Render layout components (Section, Grid, Tabs) -->
     <template v-for="layout in layoutComponents" :key="layout.label || layout.name">
       <!-- Section Component -->
-      <Card v-if="layout.component === 'Section'">
+      <Card v-if="isComponent(layout, 'section')">
         <CardHeader v-if="layout.label || layout.heading">
           <CardTitle>{{ layout.label || layout.heading }}</CardTitle>
           <CardDescription v-if="layout.description">
@@ -127,20 +134,32 @@ const getColumnSpanClass = (columnSpan?: number | string | Record<string, number
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div class="grid gap-6" :class="getGridClass(layout.columns)">
-            <component
-              v-for="entry in layout.schema"
-              :key="entry.name"
-              :is="getEntryComponent(entry.component)"
-              :class="getColumnSpanClass(entry.columnSpan)"
-              v-bind="{ ...entry, state: entry.value ?? entry.state }"
-            />
+          <div class="space-y-6">
+            <template v-for="item in layout.schema" :key="item.name">
+              <!-- Nested Grid within Section -->
+              <div v-if="isComponent(item, 'grid')" class="grid gap-6" :class="getGridClass(item.columns)">
+                <component
+                  v-for="entry in item.schema"
+                  :key="entry.name"
+                  :is="getEntryComponent(entry.component)"
+                  :class="getColumnSpanClass(entry.columnSpan)"
+                  v-bind="{ ...entry, state: entry.value ?? entry.state }"
+                />
+              </div>
+              <!-- Direct Entry within Section -->
+              <component
+                v-else
+                :is="getEntryComponent(item.component)"
+                :class="getColumnSpanClass(item.columnSpan)"
+                v-bind="{ ...item, state: item.value ?? item.state }"
+              />
+            </template>
           </div>
         </CardContent>
       </Card>
 
       <!-- Grid Component -->
-      <div v-else-if="layout.component === 'Grid'" class="grid gap-6" :class="getGridClass(layout.columns)">
+      <div v-else-if="isComponent(layout, 'grid')" class="grid gap-6" :class="getGridClass(layout.columns)">
         <component
           v-for="entry in layout.schema"
           :key="entry.name"
@@ -151,7 +170,7 @@ const getColumnSpanClass = (columnSpan?: number | string | Record<string, number
       </div>
 
       <!-- Tabs Component -->
-      <Tabs v-else-if="layout.component === 'Tabs'" :default-value="layout.tabs?.[0]?.label || 'tab-0'">
+      <Tabs v-else-if="isComponent(layout, 'tabs')" :default-value="layout.tabs?.[0]?.label || 'tab-0'">
         <TabsList>
           <TabsTrigger
             v-for="(tab, index) in layout.tabs"
@@ -171,7 +190,7 @@ const getColumnSpanClass = (columnSpan?: number | string | Record<string, number
             <!-- Recursively render layout components within tabs -->
             <template v-for="item in tab.schema" :key="item.name">
               <!-- Section within Tab -->
-              <Card v-if="item.component === 'Section'">
+              <Card v-if="isComponent(item, 'section')">
                 <CardHeader v-if="item.label || item.heading">
                   <CardTitle>{{ item.label || item.heading }}</CardTitle>
                   <CardDescription v-if="item.description">
@@ -192,7 +211,7 @@ const getColumnSpanClass = (columnSpan?: number | string | Record<string, number
               </Card>
 
               <!-- Grid within Tab -->
-              <div v-else-if="item.component === 'Grid'" class="grid gap-6" :class="getGridClass(item.columns)">
+              <div v-else-if="isComponent(item, 'grid')" class="grid gap-6" :class="getGridClass(item.columns)">
                 <component
                   v-for="entry in item.schema"
                   :key="entry.name"
