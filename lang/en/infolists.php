@@ -1,16 +1,33 @@
 <?php
 
 return [
-    /*
-    |--------------------------------------------------------------------------
-    | Infolists Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used by the Infolists plugin.
-    | You are free to modify these language lines according to your
-    | application's requirements.
-    |
-    */
+    // Entries
+    'entries' => [
+        'empty' => 'No data',
+        'loading' => 'Loading...',
+        'boolean_true' => 'Yes',
+        'boolean_false' => 'No',
+    ],
 
-    // Add your translation messages here
+    // Sections
+    'sections' => [
+        'collapse' => 'Collapse',
+        'expand' => 'Expand',
+    ],
+
+    // Actions
+    'actions' => [
+        'copy' => 'Copy',
+        'copied' => 'Copied!',
+        'open_link' => 'Open link',
+        'download' => 'Download',
+        'view' => 'View',
+    ],
+
+    // Labels
+    'labels' => [
+        'created_at' => 'Created',
+        'updated_at' => 'Updated',
+        'deleted_at' => 'Deleted',
+    ],
 ];

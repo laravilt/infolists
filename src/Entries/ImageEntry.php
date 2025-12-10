@@ -18,6 +18,14 @@ class ImageEntry extends Entry
 
     protected ?string $defaultImage = null;
 
+    protected bool $stacked = false;
+
+    protected ?int $limit = null;
+
+    protected ?int $ring = null;
+
+    protected ?int $overlap = null;
+
     public function width(int $width): static
     {
         $this->width = $width;
@@ -69,19 +77,84 @@ class ImageEntry extends Entry
         return $this;
     }
 
-    public function toLaraviltProps(): array
+    /**
+     * Stack multiple images with overlap effect.
+     */
+    public function stacked(bool $condition = true): static
     {
-        // Convert relative URLs to absolute URLs
-        $imageUrl = $this->state;
-        if ($imageUrl && ! filter_var($imageUrl, FILTER_VALIDATE_URL)) {
-            // If it's a relative URL, prepend the asset base URL
-            $imageUrl = asset($imageUrl);
+        $this->stacked = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Limit the number of images shown.
+     */
+    public function limit(int $limit): static
+    {
+        $this->limit = $limit;
+
+        return $this;
+    }
+
+    /**
+     * Set the ring width for stacked images.
+     */
+    public function ring(int $ring): static
+    {
+        $this->ring = $ring;
+
+        return $this;
+    }
+
+    /**
+     * Set the overlap amount for stacked images.
+     */
+    public function overlap(int $overlap): static
+    {
+        $this->overlap = $overlap;
+
+        return $this;
+    }
+
+    /**
+     * Convert a single URL to absolute if it's relative.
+     */
+    protected function convertToAbsoluteUrl(?string $url): ?string
+    {
+        if (! $url) {
+            return null;
         }
 
-        $defaultImageUrl = $this->defaultImage;
-        if ($defaultImageUrl && ! filter_var($defaultImageUrl, FILTER_VALIDATE_URL)) {
-            $defaultImageUrl = asset($defaultImageUrl);
+        if (filter_var($url, FILTER_VALIDATE_URL)) {
+            return $url;
         }
+
+        return asset($url);
+    }
+
+    /**
+     * Process image URLs - handles both single string and array of URLs.
+     */
+    protected function processImageUrls(mixed $state): mixed
+    {
+        if (is_array($state)) {
+            return array_map(fn ($url) => $this->convertToAbsoluteUrl($url), $state);
+        }
+
+        if (is_string($state)) {
+            return $this->convertToAbsoluteUrl($state);
+        }
+
+        return $state;
+    }
+
+    public function toLaraviltProps(): array
+    {
+        // Convert relative URLs to absolute URLs (handles both string and array)
+        $imageUrl = $this->processImageUrls($this->state);
+
+        $defaultImageUrl = $this->convertToAbsoluteUrl($this->defaultImage);
 
         return array_merge(parent::toLaraviltProps(), [
             'state' => $imageUrl,
@@ -91,6 +164,10 @@ class ImageEntry extends Entry
             'circular' => $this->circular,
             'alt' => $this->alt,
             'defaultImage' => $defaultImageUrl,
+            'stacked' => $this->stacked,
+            'limit' => $this->limit,
+            'ring' => $this->ring,
+            'overlap' => $this->overlap,
         ]);
     }
 }

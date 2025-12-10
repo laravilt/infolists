@@ -10,8 +10,6 @@ class IconEntry extends Entry
 
     protected bool $circular = false;
 
-    protected ?string $iconColor = null;
-
     protected bool $isBoolean = false;
 
     protected ?string $booleanTrueIcon = 'check-circle';
@@ -32,13 +30,6 @@ class IconEntry extends Entry
     public function circular(bool $condition = true): static
     {
         $this->circular = $condition;
-
-        return $this;
-    }
-
-    public function iconColor(string $color): static
-    {
-        $this->iconColor = $color;
 
         return $this;
     }
@@ -118,7 +109,7 @@ class IconEntry extends Entry
         return array_merge($props, [
             'size' => $this->size,
             'circular' => $this->circular,
-            'iconColor' => $props['iconColor'] ?? $this->iconColor,
+            'iconColor' => $props['iconColor'] ?? $this->getIconColor(),
             'isBoolean' => $this->isBoolean,
             'trueIcon' => $this->booleanTrueIcon,
             'falseIcon' => $this->booleanFalseIcon,

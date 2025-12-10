@@ -14,6 +14,8 @@ class TextEntry extends Entry
 
     protected bool $html = false;
 
+    protected bool $prose = false;
+
     protected ?string $prefix = null;
 
     protected ?string $suffix = null;
@@ -65,6 +67,16 @@ class TextEntry extends Entry
     public function html(bool $condition = true): static
     {
         $this->html = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Display as prose text with proper typography styling
+     */
+    public function prose(bool $condition = true): static
+    {
+        $this->prose = $condition;
 
         return $this;
     }
@@ -205,6 +217,7 @@ class TextEntry extends Entry
             'wrap' => $this->wrap,
             'markdown' => $this->markdown,
             'html' => $this->html,
+            'prose' => $this->prose,
             'prefix' => $this->prefix,
             'suffix' => $this->suffix,
             'badge' => $this->badge,

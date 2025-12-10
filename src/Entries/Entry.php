@@ -20,9 +20,11 @@ abstract class Entry extends Component
 
     protected ?Closure $formatStateUsing = null;
 
-    protected ?string $color = null;
+    protected string|Closure|null $color = null;
 
-    protected ?string $icon = null;
+    protected string|Closure|null $icon = null;
+
+    protected string|Closure|null $iconColor = null;
 
     protected ?string $tooltip = null;
 
@@ -65,18 +67,61 @@ abstract class Entry extends Component
         return $state;
     }
 
-    public function color(string $color): static
+    public function color(string|Closure|null $color): static
     {
         $this->color = $color;
 
         return $this;
     }
 
-    public function icon(string $icon): static
+    /**
+     * Get the evaluated color value.
+     */
+    public function getColor(): ?string
+    {
+        if ($this->color instanceof Closure) {
+            return ($this->color)($this->state);
+        }
+
+        return $this->color;
+    }
+
+    public function icon(string|Closure|null $icon): static
     {
         $this->icon = $icon;
 
         return $this;
+    }
+
+    /**
+     * Get the evaluated icon value.
+     */
+    public function getIcon(): ?string
+    {
+        if ($this->icon instanceof Closure) {
+            return ($this->icon)($this->state);
+        }
+
+        return $this->icon;
+    }
+
+    public function iconColor(string|Closure|null $color): static
+    {
+        $this->iconColor = $color;
+
+        return $this;
+    }
+
+    /**
+     * Get the evaluated icon color value.
+     */
+    public function getIconColor(): ?string
+    {
+        if ($this->iconColor instanceof Closure) {
+            return ($this->iconColor)($this->state);
+        }
+
+        return $this->iconColor;
     }
 
     public function state(mixed $state): static
@@ -131,8 +176,9 @@ abstract class Entry extends Component
     {
         return array_merge(parent::toLaraviltProps(), [
             'copyable' => $this->copyable,
-            'color' => $this->color,
-            'icon' => $this->icon,
+            'color' => $this->getColor(),
+            'icon' => $this->getIcon(),
+            'iconColor' => $this->getIconColor(),
             'tooltip' => $this->tooltip,
             'placeholder' => $this->placeholder,
         ]);
