@@ -58,22 +58,32 @@ it('icon color is null by default', function () {
 it('can format as boolean with default icons', function () {
     $entry = IconEntry::make('is_verified')->boolean();
 
-    $trueFormatted = $entry->formatState(true);
-    $falseFormatted = $entry->formatState(false);
+    // Test true state
+    $entry->state = true;
+    $trueProps = $entry->toInertiaProps();
 
-    expect($trueFormatted)->toBe('check-circle')
-        ->and($falseFormatted)->toBe('x-circle');
+    // Test false state
+    $entry->state = false;
+    $falseProps = $entry->toInertiaProps();
+
+    expect($trueProps['state'])->toBe('check-circle')
+        ->and($falseProps['state'])->toBe('x-circle');
 });
 
 it('can format as boolean with custom icons', function () {
     $entry = IconEntry::make('is_active')
         ->boolean('thumbs-up', 'thumbs-down');
 
-    $trueFormatted = $entry->formatState(true);
-    $falseFormatted = $entry->formatState(false);
+    // Test true state
+    $entry->state = true;
+    $trueProps = $entry->toInertiaProps();
 
-    expect($trueFormatted)->toBe('thumbs-up')
-        ->and($falseFormatted)->toBe('thumbs-down');
+    // Test false state
+    $entry->state = false;
+    $falseProps = $entry->toInertiaProps();
+
+    expect($trueProps['state'])->toBe('thumbs-up')
+        ->and($falseProps['state'])->toBe('thumbs-down');
 });
 
 it('converts to Inertia props with all icon entry properties', function () {
@@ -140,11 +150,10 @@ it('can combine boolean formatting with styling', function () {
         ->iconColor('success');
 
     $entry->state = true;
-    $formatted = $entry->formatState(true);
-
     $props = $entry->toInertiaProps();
 
-    expect($formatted)->toBe('check-circle')
+    // Boolean state is converted to icon in props
+    expect($props['state'])->toBe('check-circle')
         ->and($props['size'])->toBe('lg')
         ->and($props['circular'])->toBeTrue()
         ->and($props['iconColor'])->toBe('success');

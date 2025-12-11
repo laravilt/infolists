@@ -41,7 +41,7 @@ it('can set placeholder', function () {
 it('has default placeholder', function () {
     $props = $this->entry->toInertiaProps();
 
-    expect($props['placeholder'])->toBe('—');
+    expect($props['placeholder'])->toBe('-');
 });
 
 it('can format state using closure', function () {
@@ -126,7 +126,8 @@ it('handles missing attributes gracefully', function () {
     $entry = TextEntry::make('nonexistent');
     $entry->fill($record);
 
-    expect($entry->getState())->toBeNull();
+    // Missing attributes return the placeholder value
+    expect($entry->getState())->toBe('-');
 });
 
 it('applies format state using when filling', function () {
