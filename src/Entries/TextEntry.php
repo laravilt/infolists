@@ -36,6 +36,8 @@ class TextEntry extends Entry
 
     protected ?string $copyMessage = null;
 
+    protected bool $strikethrough = false;
+
     public function badge(bool $condition = true): static
     {
         $this->badge = $condition;
@@ -210,6 +212,16 @@ class TextEntry extends Entry
         return $this;
     }
 
+    /**
+     * Display text with strikethrough styling.
+     */
+    public function strikethrough(bool $condition = true): static
+    {
+        $this->strikethrough = $condition;
+
+        return $this;
+    }
+
     public function toLaraviltProps(): array
     {
         return array_merge(parent::toLaraviltProps(), [
@@ -228,6 +240,7 @@ class TextEntry extends Entry
             'openUrlInNewTab' => $this->urlOpenInNewTab,
             'copyable' => $this->copyable,
             'copyMessage' => $this->copyMessage,
+            'strikethrough' => $this->strikethrough,
         ]);
     }
 }

@@ -22,6 +22,7 @@ interface TextEntryProps {
   badge?: boolean
   color?: string | null
   icon?: string | null
+  strikethrough?: boolean
 }
 
 const props = withDefaults(defineProps<TextEntryProps>(), {
@@ -36,6 +37,7 @@ const props = withDefaults(defineProps<TextEntryProps>(), {
   badge: false,
   color: null,
   icon: null,
+  strikethrough: false,
 })
 
 const formattedValue = computed(() => {
@@ -146,6 +148,7 @@ const handleCopy = () => {
         :class="[
           'text-sm text-muted-foreground',
           wrap ? 'whitespace-normal' : 'truncate',
+          strikethrough ? 'line-through' : '',
         ]"
         v-html="formattedValue"
       />
@@ -155,6 +158,7 @@ const handleCopy = () => {
           'text-sm',
           state === null || state === undefined ? 'text-muted-foreground italic' : 'text-foreground',
           wrap ? 'whitespace-normal' : 'truncate',
+          strikethrough ? 'line-through' : '',
         ]"
       >
         {{ formattedValue }}
