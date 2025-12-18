@@ -16,6 +16,11 @@ abstract class Entry extends Component
 {
     use InteractsWithState;
 
+    /**
+     * The record instance being displayed.
+     */
+    protected ?Model $record = null;
+
     protected bool $copyable = false;
 
     protected ?Closure $formatStateUsing = null;
@@ -134,6 +139,9 @@ abstract class Entry extends Component
 
     public function fill(Model $record): static
     {
+        // Store the record for access by closures
+        $this->record = $record;
+
         // Handle dot notation for relationships (e.g., "groups.name")
         if (str_contains($this->name, '.')) {
             $parts = explode('.', $this->name);
@@ -167,6 +175,14 @@ abstract class Entry extends Component
         $this->state = $formattedValue ?? $this->getPlaceholder();
 
         return $this;
+    }
+
+    /**
+     * Get the record instance being displayed.
+     */
+    public function getRecord(): ?Model
+    {
+        return $this->record;
     }
 
     /**
