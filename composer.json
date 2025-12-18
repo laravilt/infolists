@@ -1,7 +1,7 @@
 {
     "name": "laravilt/infolists",
     "description": "Complete information display system with entries, sections, and flexible layouts. Display data in organized, readable formats with text, images, badges, icons, and lists with date/time and money formatting.",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "type": "library",
     "license": "MIT",
     "keywords": [

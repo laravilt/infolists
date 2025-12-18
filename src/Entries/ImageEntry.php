@@ -18,6 +18,8 @@ class ImageEntry extends Entry
 
     protected ?string $defaultImage = null;
 
+    protected mixed $defaultImageUrl = null;
+
     protected bool $stacked = false;
 
     protected ?int $limit = null;
@@ -75,6 +77,29 @@ class ImageEntry extends Entry
         $this->defaultImage = $url;
 
         return $this;
+    }
+
+    /**
+     * Set a dynamic default image URL using a closure.
+     * The closure receives the record as the first argument.
+     */
+    public function defaultImageUrl(string|\Closure $url): static
+    {
+        $this->defaultImageUrl = $url;
+
+        return $this;
+    }
+
+    /**
+     * Get the resolved default image URL.
+     */
+    public function getDefaultImageUrl(): ?string
+    {
+        if ($this->defaultImageUrl instanceof \Closure) {
+            return ($this->defaultImageUrl)($this->record);
+        }
+
+        return $this->defaultImageUrl ?? $this->defaultImage;
     }
 
     /**
@@ -154,7 +179,8 @@ class ImageEntry extends Entry
         // Convert relative URLs to absolute URLs (handles both string and array)
         $imageUrl = $this->processImageUrls($this->state);
 
-        $defaultImageUrl = $this->convertToAbsoluteUrl($this->defaultImage);
+        // Use the resolved default image URL (supports closures)
+        $defaultImageUrl = $this->convertToAbsoluteUrl($this->getDefaultImageUrl());
 
         return array_merge(parent::toLaraviltProps(), [
             'state' => $imageUrl,
