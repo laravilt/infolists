@@ -38,6 +38,8 @@ class TextEntry extends Entry
 
     protected bool $strikethrough = false;
 
+    protected ?array $numericFormat = null;
+
     public function badge(bool $condition = true): static
     {
         $this->badge = $condition;
@@ -162,6 +164,60 @@ class TextEntry extends Entry
     }
 
     /**
+     * Format the value as a number with locale-aware formatting.
+     *
+     * @param  int|null  $decimalPlaces  Number of decimal places
+     * @param  string|null  $decimalSeparator  Custom decimal separator
+     * @param  string|null  $thousandsSeparator  Custom thousands separator
+     * @param  string|null  $locale  Locale for number formatting (e.g., 'en', 'de', 'fr')
+     */
+    public function numeric(
+        ?int $decimalPlaces = null,
+        ?string $decimalSeparator = null,
+        ?string $thousandsSeparator = null,
+        ?string $locale = null,
+    ): static {
+        $this->numericFormat = [
+            'decimalPlaces' => $decimalPlaces,
+            'decimalSeparator' => $decimalSeparator,
+            'thousandsSeparator' => $thousandsSeparator,
+            'locale' => $locale,
+        ];
+
+        $this->formatStateUsing(function ($state) use ($decimalPlaces, $decimalSeparator, $thousandsSeparator, $locale) {
+            if ($state === null || $state === '') {
+                return null;
+            }
+
+            if (! is_numeric($state)) {
+                return $state;
+            }
+
+            $numericValue = (float) $state;
+
+            // Use locale-based formatting if locale is provided
+            if ($locale !== null) {
+                $formatter = new \NumberFormatter($locale, \NumberFormatter::DECIMAL);
+                if ($decimalPlaces !== null) {
+                    $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $decimalPlaces);
+                    $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $decimalPlaces);
+                }
+
+                return $formatter->format($numericValue);
+            }
+
+            // Use custom separators or defaults
+            $decimals = $decimalPlaces ?? (floor($numericValue) == $numericValue ? 0 : 2);
+            $dec = $decimalSeparator ?? '.';
+            $thousands = $thousandsSeparator ?? ',';
+
+            return number_format($numericValue, $decimals, $dec, $thousands);
+        });
+
+        return $this;
+    }
+
+    /**
      * Set separator for array values (FilamentPHP v4 compatibility).
      */
     public function separator(?string $separator = ', '): static
@@ -241,6 +297,7 @@ class TextEntry extends Entry
             'copyable' => $this->copyable,
             'copyMessage' => $this->copyMessage,
             'strikethrough' => $this->strikethrough,
+            'numericFormat' => $this->numericFormat,
         ]);
     }
 }
