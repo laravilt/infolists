@@ -19,7 +19,17 @@ abstract class Entry extends Component
     /**
      * The record instance being displayed.
      */
-    protected ?Model $record = null;
+    protected mixed $record = null;
+
+    /**
+     * Set the record instance (used by Schema::fillComponents).
+     */
+    public function setRecord(mixed $record): static
+    {
+        $this->record = $record;
+
+        return $this;
+    }
 
     protected bool $copyable = false;
 
@@ -131,8 +141,9 @@ abstract class Entry extends Component
 
     public function state(mixed $state): static
     {
-        // If state is null, use the placeholder value
-        $this->state = $state ?? $this->getPlaceholder();
+        // Store the actual state value (don't fall back to placeholder)
+        // Placeholder is only used for DISPLAY in the frontend, not as actual data
+        $this->state = $state;
 
         return $this;
     }
@@ -147,6 +158,15 @@ abstract class Entry extends Component
             $parts = explode('.', $this->name);
             $relationship = $parts[0];
             $attribute = $parts[1];
+
+            // Load the relationship if not already loaded and the method exists
+            if (! $record->relationLoaded($relationship) && method_exists($record, $relationship)) {
+                try {
+                    $record->load($relationship);
+                } catch (\Throwable $e) {
+                    // Relationship couldn't be loaded, continue with null
+                }
+            }
 
             // Check if the relationship exists and is loaded
             if ($record->relationLoaded($relationship)) {
@@ -168,11 +188,8 @@ abstract class Entry extends Component
             $value = $record->{$this->name} ?? null;
         }
 
-        // Format the state
-        $formattedValue = $this->formatState($value);
-
-        // If value is null, use placeholder
-        $this->state = $formattedValue ?? $this->getPlaceholder();
+        // Format the state - don't fall back to placeholder, it's only for display
+        $this->state = $this->formatState($value);
 
         return $this;
     }
@@ -180,7 +197,7 @@ abstract class Entry extends Component
     /**
      * Get the record instance being displayed.
      */
-    public function getRecord(): ?Model
+    public function getRecord(): mixed
     {
         return $this->record;
     }
