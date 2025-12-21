@@ -186,7 +186,7 @@ class TextEntry extends Entry
 
         $this->formatStateUsing(function ($state) use ($decimalPlaces, $decimalSeparator, $thousandsSeparator, $locale) {
             if ($state === null || $state === '') {
-                return null;
+                return;
             }
 
             if (! is_numeric($state)) {
