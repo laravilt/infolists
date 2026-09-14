@@ -126,8 +126,9 @@ it('handles missing attributes gracefully', function () {
     $entry = TextEntry::make('nonexistent');
     $entry->fill($record);
 
-    // Missing attributes return the placeholder value
-    expect($entry->getState())->toBe('-');
+    // Missing attributes keep a null state; the placeholder is only used for display
+    expect($entry->getState())->toBeNull()
+        ->and($entry->toLaraviltProps()['placeholder'])->toBe('-');
 });
 
 it('applies format state using when filling', function () {
