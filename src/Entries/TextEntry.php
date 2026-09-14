@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Laravilt\Infolists\Entries;
 
+use Carbon\Carbon;
+
 class TextEntry extends Entry
 {
     protected ?int $limit = null;
@@ -139,7 +141,7 @@ class TextEntry extends Entry
                 return;
             }
 
-            return \Carbon\Carbon::parse($state)->format($format);
+            return Carbon::parse($state)->format($format);
         });
 
         return $this;
@@ -157,7 +159,7 @@ class TextEntry extends Entry
                 return;
             }
 
-            return \Carbon\Carbon::parse($state)->diffForHumans();
+            return Carbon::parse($state)->diffForHumans();
         });
 
         return $this;

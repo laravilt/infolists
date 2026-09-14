@@ -6,6 +6,7 @@ namespace Laravilt\Infolists\Entries;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Laravilt\Support\Component;
 use Laravilt\Support\Concerns\InteractsWithState;
 
@@ -173,7 +174,7 @@ abstract class Entry extends Component
                 $related = $record->{$relationship};
 
                 // If it's a collection, pluck the attribute
-                if ($related instanceof \Illuminate\Support\Collection) {
+                if ($related instanceof Collection) {
                     $value = $related->pluck($attribute)->toArray();
                 } elseif ($related) {
                     // If it's a single model, get the attribute
