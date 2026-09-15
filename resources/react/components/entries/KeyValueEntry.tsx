@@ -2,6 +2,7 @@ import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNotification } from '@laravilt/notifications/composables/useNotification';
+import { formatStateValue } from '../../lib/entries';
 
 export interface KeyValueEntryProps {
     label: string;
@@ -32,7 +33,8 @@ export default function KeyValueEntry({
             ? []
             : Object.entries(state).map(([key, value]) => ({
                   key,
-                  value: String(value),
+                  // Nested objects / arrays as JSON / joined text instead of "[object Object]"
+                  value: formatStateValue(value),
               }));
 
     const handleCopyKey = (key: string) => {

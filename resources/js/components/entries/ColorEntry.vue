@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Copy } from 'lucide-vue-next'
 import { useNotification } from '@laravilt/notifications/composables/useNotification'
+import { formatStateValue, isEmptyState } from '../../lib/entries'
 
 const { notify } = useNotification()
 
@@ -40,8 +41,8 @@ const sizeClass = computed(() => {
 })
 
 const handleCopy = () => {
-  if (props.copyable && props.state) {
-    navigator.clipboard.writeText(props.state)
+  if (props.copyable && !isEmptyState(props.state)) {
+    navigator.clipboard.writeText(formatStateValue(props.state))
     notify({
       title: 'Copied',
       body: 'Color copied to clipboard',
@@ -56,13 +57,13 @@ const handleCopy = () => {
     <div class="text-sm font-medium text-foreground">
       {{ label }}
     </div>
-    <div v-if="state" class="flex items-center gap-2">
+    <div v-if="!isEmptyState(state)" class="flex items-center gap-2">
       <div
         :class="[sizeClass, 'rounded border border-border shrink-0']"
-        :style="{ backgroundColor: state }"
+        :style="{ backgroundColor: formatStateValue(state) }"
       />
       <span v-if="showLabel" class="text-sm text-foreground font-mono">
-        {{ state }}
+        {{ formatStateValue(state) }}
       </span>
       <Button
         v-if="copyable"

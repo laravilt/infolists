@@ -2,7 +2,7 @@ import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNotification } from '@laravilt/notifications/composables/useNotification';
-import { toDisplayString } from '../../lib/toDisplayString';
+import { formatStateValue, isEmptyState } from '../../lib/entries';
 
 export interface ColorEntryProps {
     label: string;
@@ -46,8 +46,8 @@ export default function ColorEntry({
     const sizeClass = getSizeClass(size);
 
     const handleCopy = () => {
-        if (copyable && state) {
-            navigator.clipboard.writeText(state);
+        if (copyable && !isEmptyState(state)) {
+            navigator.clipboard.writeText(formatStateValue(state));
             notify({
                 title: 'Copied',
                 body: 'Color copied to clipboard',
@@ -59,10 +59,10 @@ export default function ColorEntry({
     return (
         <div className={cn('flex flex-col gap-1', className)}>
             <div className="text-sm font-medium text-foreground">{label}</div>
-            {state ? (
+            {!isEmptyState(state) ? (
                 <div className="flex items-center gap-2">
-                    <div className={cn(sizeClass, 'rounded border border-border shrink-0')} style={{ backgroundColor: state }} />
-                    {showLabel && <span className="text-sm text-foreground font-mono">{toDisplayString(state)}</span>}
+                    <div className={cn(sizeClass, 'rounded border border-border shrink-0')} style={{ backgroundColor: formatStateValue(state) }} />
+                    {showLabel && <span className="text-sm text-foreground font-mono">{formatStateValue(state)}</span>}
                     {copyable && (
                         <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={handleCopy}>
                             <Copy className="h-3 w-3" />

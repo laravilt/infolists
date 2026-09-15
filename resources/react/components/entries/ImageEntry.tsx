@@ -27,7 +27,11 @@ export default function ImageEntry({
     defaultImage = null,
     className,
 }: ImageEntryProps) {
-    const imageSrc = state || defaultImage;
+    // A state can be one URL or a list of URLs; fall back to the default image
+    const sources = (Array.isArray(state) ? state : [state]).filter(
+        (src: unknown): src is string => typeof src === 'string' && src !== '',
+    );
+    const images: string[] = sources.length === 0 && defaultImage ? [defaultImage] : sources;
 
     const imageStyle: CSSProperties = {};
 
@@ -52,9 +56,9 @@ export default function ImageEntry({
     return (
         <div className={cn('flex flex-col gap-1', className)}>
             <div className="text-sm font-medium text-foreground">{label}</div>
-            <div className="flex items-center">
-                {imageSrc ? (
-                    <img src={imageSrc} alt={alt || label} style={imageStyle} className={imageClass} />
+            <div className="flex flex-wrap items-center gap-2">
+                {images.length > 0 ? (
+                    images.map((src, index) => <img key={index} src={src} alt={alt || label} style={imageStyle} className={imageClass} />)
                 ) : (
                     <span className="text-sm text-muted-foreground italic">{placeholder}</span>
                 )}

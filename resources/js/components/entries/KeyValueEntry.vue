@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Copy } from 'lucide-vue-next'
 import { useNotification } from '@laravilt/notifications/composables/useNotification'
+import { formatStateValue } from '../../lib/entries'
 
 const { notify } = useNotification()
 
@@ -31,7 +32,8 @@ const entries = computed(() => {
 
   return Object.entries(props.state).map(([key, value]) => ({
     key,
-    value: String(value),
+    // Nested objects / arrays as JSON / joined text instead of "[object Object]"
+    value: formatStateValue(value),
   }))
 })
 

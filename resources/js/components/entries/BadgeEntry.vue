@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { Badge } from '@/components/ui/badge'
 import * as LucideIcons from 'lucide-vue-next'
+import { formatStateValue, isEmptyState, stateKey } from '../../lib/entries'
 
 interface BadgeEntryProps {
   label: string
@@ -21,16 +22,21 @@ const props = withDefaults(defineProps<BadgeEntryProps>(), {
   icons: () => ({}),
 })
 
+// Scalar states (including 0 and false) can be looked up in the colors / icons maps
+const currentStateKey = computed(() => stateKey(props.state))
+
 const currentColor = computed(() => {
-  if (props.colors && props.state && props.colors[props.state]) {
-    return props.colors[props.state]
+  const key = currentStateKey.value
+  if (props.colors && key !== null && props.colors[key]) {
+    return props.colors[key]
   }
   return props.color || 'secondary'
 })
 
 const currentIcon = computed(() => {
-  if (props.icons && props.state && props.icons[props.state]) {
-    return props.icons[props.state]
+  const key = currentStateKey.value
+  if (props.icons && key !== null && props.icons[key]) {
+    return props.icons[key]
   }
   return props.icon
 })
@@ -68,13 +74,13 @@ const badgeVariant = computed(() => {
       {{ label }}
     </div>
     <div class="flex items-center">
-      <Badge v-if="state" :variant="badgeVariant" class="font-normal flex items-center gap-1.5">
+      <Badge v-if="!isEmptyState(state)" :variant="badgeVariant" class="font-normal flex items-center gap-1.5">
         <component
           :is="lucideIconComponent"
           v-if="lucideIconComponent"
           class="h-3 w-3 shrink-0"
         />
-        {{ state }}
+        {{ formatStateValue(state) }}
       </Badge>
       <span v-else class="text-sm text-muted-foreground italic">
         {{ placeholder }}
