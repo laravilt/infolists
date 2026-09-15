@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState, type ComponentType } from 'react';
 import { cn } from '@/lib/utils';
+import { getValueAtPath, normalizeEntryProps } from '../../lib/entries';
 import BadgeEntry from './BadgeEntry';
 import CodeEntry from './CodeEntry';
 import ColorEntry from './ColorEntry';
@@ -31,6 +32,16 @@ const componentMap: Record<string, ComponentType<any>> = {
     CodeEntry,
     KeyValueEntry,
     BadgeEntry,
+    RepeatableEntry,
+    // The server sends snake_case types (Laravilt\Support\Component::getComponentType)
+    text_entry: TextEntry,
+    icon_entry: IconEntry,
+    image_entry: ImageEntry,
+    color_entry: ColorEntry,
+    code_entry: CodeEntry,
+    key_value_entry: KeyValueEntry,
+    badge_entry: BadgeEntry,
+    repeatable_entry: RepeatableEntry,
 };
 
 const getEntryComponent = (componentType: string): ComponentType<any> => {
@@ -46,21 +57,11 @@ export default function RepeatableEntry({
     emptyMessage = 'No items',
     className,
 }: RepeatableEntryProps) {
-    // If collapsed by default, start with all items collapsed (evaluated once, like the Vue setup)
-    const [expandedItems, setExpandedItems] = useState<Set<number>>(() => {
-        const initial = new Set<number>();
-
-        if (!collapsed && Array.isArray(state)) {
-            state.forEach((_, index) => {
-                initial.add(index);
-            });
-        }
-
-        return initial;
-    });
+    // Items the user toggled away from the default (`collapsed`). Items added later follow the default.
+    const [toggledItems, setToggledItems] = useState<Set<number>>(() => new Set());
 
     const toggleItem = (index: number) => {
-        setExpandedItems((current) => {
+        setToggledItems((current) => {
             const next = new Set(current);
 
             if (next.has(index)) {
@@ -74,7 +75,7 @@ export default function RepeatableEntry({
     };
 
     const isExpanded = (index: number) => {
-        return expandedItems.has(index);
+        return collapsed ? toggledItems.has(index) : !toggledItems.has(index);
     };
 
     const items: any[] = Array.isArray(state) ? state : [];
@@ -92,7 +93,16 @@ export default function RepeatableEntry({
                                 {collapsible && (
                                     <div
                                         className="flex items-center justify-between px-4 py-3 bg-muted/50 cursor-pointer hover:bg-muted"
+                                        role="button"
+                                        tabIndex={0}
+                                        aria-expanded={isExpanded(index)}
                                         onClick={() => toggleItem(index)}
+                                        onKeyDown={(event) => {
+                                            if (event.key === 'Enter' || event.key === ' ') {
+                                                event.preventDefault();
+                                                toggleItem(index);
+                                            }
+                                        }}
                                     >
                                         <span className="text-sm font-medium text-foreground">Item {index + 1}</span>
                                         <Chevron className="h-4 w-4 text-muted-foreground" />
@@ -103,7 +113,8 @@ export default function RepeatableEntry({
                                         {schema.map((entry, entryIndex) => {
                                             const Entry = getEntryComponent(entry.component);
 
-                                            return <Entry key={entryIndex} {...entry} state={item[entry.name]} />;
+                                            // snake_case keys also exposed as camelCase, state read from the item (dot notation)
+                                            return <Entry key={entryIndex} {...normalizeEntryProps(entry)} state={getValueAtPath(item, entry.name)} />;
                                         })}
                                     </div>
                                 )}

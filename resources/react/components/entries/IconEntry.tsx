@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { resolveIcon } from '@laravilt/support/lib/icons';
+import { isEmptyState } from '../../lib/entries';
 
 export interface IconEntryProps {
     label: string;
@@ -40,7 +41,7 @@ const colorMap: Record<string, string> = {
 
 export default function IconEntry({ label, state, placeholder = '—', size = null, circular = false, iconColor = null, className }: IconEntryProps) {
     // Ensure state is a string
-    const LucideIconComponent = state ? resolveIcon(String(state)) : null;
+    const LucideIconComponent = isEmptyState(state) || typeof state === 'object' ? null : resolveIcon(String(state));
 
     const sizeClass = getSizeClass(size);
 

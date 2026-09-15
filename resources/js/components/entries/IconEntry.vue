@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import * as LucideIcons from 'lucide-vue-next'
+import { isEmptyState } from '../../lib/entries'
 
 interface IconEntryProps {
   label: string
@@ -19,7 +20,7 @@ const props = withDefaults(defineProps<IconEntryProps>(), {
 })
 
 const lucideIconComponent = computed(() => {
-  if (!props.state) return undefined
+  if (isEmptyState(props.state) || typeof props.state === 'object') return undefined
 
   // Ensure state is a string
   const iconName = String(props.state)

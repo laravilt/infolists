@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNotification } from '@laravilt/notifications/composables/useNotification';
 import { resolveIcon } from '@laravilt/support/lib/icons';
+import { formatStateValue } from '../../lib/entries';
 import { sanitizeHtml } from '../../lib/sanitizeHtml';
-import { toDisplayString } from '../../lib/toDisplayString';
 
 export interface TextEntryProps {
     label: string;
@@ -22,6 +22,7 @@ export interface TextEntryProps {
     color?: string | null;
     icon?: string | null;
     strikethrough?: boolean;
+    separator?: string | null;
     /** Vue fall-through `class` (InfoList passes the column-span classes). */
     className?: string;
 }
@@ -50,6 +51,7 @@ export default function TextEntry({
     color = null,
     icon = null,
     strikethrough = false,
+    separator = null,
     className,
 }: TextEntryProps) {
     const { notify } = useNotification();
@@ -59,7 +61,8 @@ export default function TextEntry({
             return placeholder;
         }
 
-        let result = String(state);
+        // Arrays are joined (separator, default ", "), objects shown as JSON, 0 / false as text
+        let result = formatStateValue(state, separator ?? ', ');
 
         // Apply character limit
         if (limit && result.length > limit) {
@@ -87,7 +90,7 @@ export default function TextEntry({
 
     const handleCopy = () => {
         if (copyable && formattedValue && formattedValue !== placeholder) {
-            navigator.clipboard.writeText(String(state));
+            navigator.clipboard.writeText(formatStateValue(state, separator ?? ', '));
             notify({
                 title: 'Copied',
                 body: 'Copied to clipboard',
@@ -105,7 +108,7 @@ export default function TextEntry({
                 {(state as any[]).map((item, index) => (
                     <Badge key={index} variant={badgeVariant} className="font-normal flex items-center gap-1.5">
                         {LucideIconComponent && <LucideIconComponent className="h-3 w-3 shrink-0" />}
-                        {toDisplayString(item)}
+                        {formatStateValue(item)}
                     </Badge>
                 ))}
             </div>

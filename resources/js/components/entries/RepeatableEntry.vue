@@ -8,6 +8,8 @@ import ColorEntry from './ColorEntry.vue'
 import CodeEntry from './CodeEntry.vue'
 import KeyValueEntry from './KeyValueEntry.vue'
 import BadgeEntry from './BadgeEntry.vue'
+import RepeatableEntry from './RepeatableEntry.vue'
+import { getValueAtPath, normalizeEntryProps } from '../../lib/entries'
 
 interface RepeatableEntryProps {
   label: string
@@ -27,39 +29,50 @@ const props = withDefaults(defineProps<RepeatableEntryProps>(), {
   emptyMessage: 'No items',
 })
 
-const expandedItems = ref<Set<number>>(new Set())
-
-// If collapsed by default, start with all items collapsed
-if (!props.collapsed && Array.isArray(props.state)) {
-  props.state.forEach((_, index) => {
-    expandedItems.value.add(index)
-  })
-}
+// Items the user toggled away from the default (`collapsed`). Items added later follow the default.
+const toggledItems = ref<Set<number>>(new Set())
 
 const toggleItem = (index: number) => {
-  if (expandedItems.value.has(index)) {
-    expandedItems.value.delete(index)
+  const next = new Set(toggledItems.value)
+  if (next.has(index)) {
+    next.delete(index)
   } else {
-    expandedItems.value.add(index)
+    next.add(index)
   }
+  toggledItems.value = next
 }
 
 const isExpanded = (index: number) => {
-  return expandedItems.value.has(index)
+  return props.collapsed ? toggledItems.value.has(index) : !toggledItems.value.has(index)
+}
+
+const componentMap: Record<string, any> = {
+  TextEntry,
+  IconEntry,
+  ImageEntry,
+  ColorEntry,
+  CodeEntry,
+  KeyValueEntry,
+  BadgeEntry,
+  RepeatableEntry,
+  // The server sends snake_case types (Laravilt\Support\Component::getComponentType)
+  text_entry: TextEntry,
+  icon_entry: IconEntry,
+  image_entry: ImageEntry,
+  color_entry: ColorEntry,
+  code_entry: CodeEntry,
+  key_value_entry: KeyValueEntry,
+  badge_entry: BadgeEntry,
+  repeatable_entry: RepeatableEntry,
 }
 
 const getEntryComponent = (componentType: string) => {
-  const componentMap: Record<string, any> = {
-    TextEntry,
-    IconEntry,
-    ImageEntry,
-    ColorEntry,
-    CodeEntry,
-    KeyValueEntry,
-    BadgeEntry,
-  }
-
   return componentMap[componentType] || TextEntry
+}
+
+// Props for a nested entry: snake_case keys also exposed as camelCase, state read from the item (dot notation)
+const entryProps = (entry: any, item: any) => {
+  return { ...normalizeEntryProps(entry), state: getValueAtPath(item, entry.name) }
 }
 
 const items = computed(() => {
@@ -85,7 +98,12 @@ const items = computed(() => {
         <div
           v-if="collapsible"
           class="flex items-center justify-between px-4 py-3 bg-muted/50 cursor-pointer hover:bg-muted"
+          role="button"
+          tabindex="0"
+          :aria-expanded="String(isExpanded(index))"
           @click="toggleItem(index)"
+          @keydown.enter.prevent="toggleItem(index)"
+          @keydown.space.prevent="toggleItem(index)"
         >
           <span class="text-sm font-medium text-foreground">
             Item {{ index + 1 }}
@@ -103,7 +121,7 @@ const items = computed(() => {
             v-for="(entry, entryIndex) in schema"
             :key="entryIndex"
             :is="getEntryComponent(entry.component)"
-            v-bind="{ ...entry, state: item[entry.name] }"
+            v-bind="entryProps(entry, item)"
           />
         </div>
       </div>

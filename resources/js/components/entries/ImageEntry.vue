@@ -23,8 +23,16 @@ const props = withDefaults(defineProps<ImageEntryProps>(), {
   defaultImage: null,
 })
 
-const imageSrc = computed(() => {
-  return props.state || props.defaultImage
+// A state can be one URL or a list of URLs; fall back to the default image
+const images = computed<string[]>(() => {
+  const list = (Array.isArray(props.state) ? props.state : [props.state])
+    .filter((src: unknown): src is string => typeof src === 'string' && src !== '')
+
+  if (list.length === 0 && props.defaultImage) {
+    return [props.defaultImage]
+  }
+
+  return list
 })
 
 const imageStyle = computed(() => {
@@ -58,15 +66,16 @@ const imageClass = computed(() => {
     <div class="text-sm font-medium text-foreground">
       {{ label }}
     </div>
-    <div class="flex items-center">
+    <div class="flex flex-wrap items-center gap-2">
       <img
-        v-if="imageSrc"
-        :src="imageSrc"
+        v-for="(src, index) in images"
+        :key="index"
+        :src="src"
         :alt="alt || label"
         :style="imageStyle"
         :class="imageClass"
       />
-      <span v-else class="text-sm text-muted-foreground italic">
+      <span v-if="images.length === 0" class="text-sm text-muted-foreground italic">
         {{ placeholder }}
       </span>
     </div>

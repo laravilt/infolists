@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { Copy } from 'lucide-vue-next'
 import * as LucideIcons from 'lucide-vue-next'
 import { useNotification } from '@laravilt/notifications/composables/useNotification'
+import { sanitizeHtml } from '../../lib/sanitizeHtml'
+import { formatStateValue } from '../../lib/entries'
 
 const { notify } = useNotification()
 
@@ -23,6 +25,7 @@ interface TextEntryProps {
   color?: string | null
   icon?: string | null
   strikethrough?: boolean
+  separator?: string | null
 }
 
 const props = withDefaults(defineProps<TextEntryProps>(), {
@@ -38,6 +41,7 @@ const props = withDefaults(defineProps<TextEntryProps>(), {
   color: null,
   icon: null,
   strikethrough: false,
+  separator: null,
 })
 
 const formattedValue = computed(() => {
@@ -45,7 +49,8 @@ const formattedValue = computed(() => {
     return props.placeholder
   }
 
-  let result = String(props.state)
+  // Arrays are joined (separator, default ", "), objects shown as JSON, 0 / false as text
+  let result = formatStateValue(props.state, props.separator ?? ', ')
 
   // Apply character limit
   if (props.limit && result.length > props.limit) {
@@ -95,7 +100,7 @@ const badgeVariant = computed(() => {
 
 const handleCopy = () => {
   if (props.copyable && formattedValue.value && formattedValue.value !== props.placeholder) {
-    navigator.clipboard.writeText(String(props.state))
+    navigator.clipboard.writeText(formatStateValue(props.state, props.separator ?? ', '))
     notify({
       title: 'Copied',
       body: 'Copied to clipboard',
@@ -131,7 +136,7 @@ const handleCopy = () => {
             v-if="lucideIconComponent"
             class="h-3 w-3 shrink-0"
           />
-          {{ item }}
+          {{ formatStateValue(item) }}
         </Badge>
       </div>
       <!-- Single badge -->
@@ -150,7 +155,7 @@ const handleCopy = () => {
           wrap ? 'whitespace-normal' : 'truncate',
           strikethrough ? 'line-through' : '',
         ]"
-        v-html="formattedValue"
+        v-html="sanitizeHtml(formattedValue)"
       />
       <span
         v-else

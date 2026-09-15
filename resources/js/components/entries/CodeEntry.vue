@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Copy } from 'lucide-vue-next'
 import { useNotification } from '@laravilt/notifications/composables/useNotification'
+import { isEmptyState } from '../../lib/entries'
 
 const { notify } = useNotification()
 
@@ -35,14 +36,27 @@ const codeStyle = computed(() => {
   return style
 })
 
+// Objects / arrays are shown as indented JSON; 0 and false are real values
+const codeText = computed(() => {
+  if (isEmptyState(props.state)) return ''
+  if (typeof props.state === 'object') {
+    try {
+      return JSON.stringify(props.state, null, 2)
+    } catch {
+      return String(props.state)
+    }
+  }
+  return String(props.state)
+})
+
 const codeLines = computed(() => {
-  if (!props.state) return []
-  return String(props.state).split('\n')
+  if (isEmptyState(props.state)) return []
+  return codeText.value.split('\n')
 })
 
 const handleCopy = () => {
-  if (props.copyable && props.state) {
-    navigator.clipboard.writeText(props.state)
+  if (props.copyable && !isEmptyState(props.state)) {
+    navigator.clipboard.writeText(codeText.value)
     notify({
       title: 'Copied',
       body: 'Code copied to clipboard',
@@ -59,7 +73,7 @@ const handleCopy = () => {
         {{ label }}
       </div>
       <Button
-        v-if="copyable && state"
+        v-if="copyable && !isEmptyState(state)"
         variant="ghost"
         size="icon"
         class="h-6 w-6 shrink-0"
@@ -69,7 +83,7 @@ const handleCopy = () => {
       </Button>
     </div>
     <div
-      v-if="state"
+      v-if="!isEmptyState(state)"
       class="rounded-md border border-border bg-muted/30 overflow-hidden"
       :style="codeStyle"
     >
@@ -77,7 +91,7 @@ const handleCopy = () => {
             v-for="(line, index) in codeLines"
             :key="index"
             class="block"
-          ><span class="inline-block w-8 text-muted-foreground select-none text-right mr-4">{{ index + 1 }}</span><span>{{ line }}</span></span></template><template v-else>{{ state }}</template></code></pre>
+          ><span class="inline-block w-8 text-muted-foreground select-none text-right mr-4">{{ index + 1 }}</span><span>{{ line }}</span></span></template><template v-else>{{ codeText }}</template></code></pre>
     </div>
     <span v-else class="text-sm text-muted-foreground italic">
       {{ placeholder }}

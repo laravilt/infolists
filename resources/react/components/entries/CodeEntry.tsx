@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNotification } from '@laravilt/notifications/composables/useNotification';
-import { toDisplayString } from '../../lib/toDisplayString';
+import { isEmptyState } from '../../lib/entries';
 
 export interface CodeEntryProps {
     label: string;
@@ -35,11 +35,24 @@ export default function CodeEntry({
         codeStyle.overflow = 'auto';
     }
 
-    const codeLines: string[] = state ? String(state).split('\n') : [];
+    // Objects / arrays are shown as indented JSON; 0 and false are real values
+    const codeText = (() => {
+        if (isEmptyState(state)) return '';
+        if (typeof state === 'object') {
+            try {
+                return JSON.stringify(state, null, 2);
+            } catch {
+                return String(state);
+            }
+        }
+        return String(state);
+    })();
+
+    const codeLines: string[] = isEmptyState(state) ? [] : codeText.split('\n');
 
     const handleCopy = () => {
-        if (copyable && state) {
-            navigator.clipboard.writeText(state);
+        if (copyable && !isEmptyState(state)) {
+            navigator.clipboard.writeText(codeText);
             notify({
                 title: 'Copied',
                 body: 'Code copied to clipboard',
@@ -52,13 +65,13 @@ export default function CodeEntry({
         <div className={cn('flex flex-col gap-1', className)}>
             <div className="flex items-center justify-between">
                 <div className="text-sm font-medium text-foreground">{label}</div>
-                {copyable && state && (
+                {copyable && !isEmptyState(state) && (
                     <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={handleCopy}>
                         <Copy className="h-3 w-3" />
                     </Button>
                 )}
             </div>
-            {state ? (
+            {!isEmptyState(state) ? (
                 <div className="rounded-md border border-border bg-muted/30 overflow-hidden" style={codeStyle}>
                     <pre className="p-4 text-sm overflow-x-auto">
                         <code className="font-mono">
@@ -71,7 +84,7 @@ export default function CodeEntry({
                                           <span>{line}</span>
                                       </span>
                                   ))
-                                : toDisplayString(state)}
+                                : codeText}
                         </code>
                     </pre>
                 </div>
