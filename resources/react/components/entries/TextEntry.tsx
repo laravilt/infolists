@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNotification } from '@laravilt/notifications/composables/useNotification';
 import { resolveIcon } from '@laravilt/support/lib/icons';
+import { sanitizeHtml } from '../../lib/sanitizeHtml';
 import { toDisplayString } from '../../lib/toDisplayString';
 
 export interface TextEntryProps {
@@ -121,7 +122,7 @@ export default function TextEntry({
         content = (
             <div
                 className={cn('text-sm text-muted-foreground', wrap ? 'whitespace-normal' : 'truncate', strikethrough ? 'line-through' : '')}
-                dangerouslySetInnerHTML={{ __html: formattedValue }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(formattedValue) }}
             />
         );
     } else {
