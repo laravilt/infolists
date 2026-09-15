@@ -37,6 +37,15 @@ const componentMap: Record<string, ComponentType<any>> = {
     KeyValueEntry,
     RepeatableEntry,
     BadgeEntry,
+    // The server sends snake_case types (Laravilt\Support\Component::getComponentType)
+    text_entry: TextEntry,
+    icon_entry: IconEntry,
+    image_entry: ImageEntry,
+    color_entry: ColorEntry,
+    code_entry: CodeEntry,
+    key_value_entry: KeyValueEntry,
+    repeatable_entry: RepeatableEntry,
+    badge_entry: BadgeEntry,
 };
 
 const getEntryComponent = (componentType: string): ComponentType<any> => {
